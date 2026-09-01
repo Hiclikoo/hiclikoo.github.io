@@ -11,6 +11,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; }
         .login-btn { background-color: #2da44e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
         .login-btn:hover { background-color: #2c974b; }
+        .login-box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ccc; display: none; }
         .admin-panel { background: #e6f4ea; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: none; border: 1px solid #2da44e; }
         .input-group { margin-bottom: 15px; }
         .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
@@ -19,7 +20,7 @@
         .project-card { border-left: 5px solid #2da44e; }
         .review-card { border-left: 5px solid #0969da; }
         .rating { color: #f39c12; font-weight: bold; }
-        .project-card h3 { margin-top: 0; color: #0969da; }
+        .empty-msg { color: #777; font-style: italic; }
     </style>
 </head>
 <body>
@@ -27,28 +28,133 @@
     <div class="container">
         <div class="header">
             <h1 style="margin: 0;">Hiclikoo Portfolyo</h1>
-            <button id="loginBtn" class="login-btn" onclick="girisYap()">Yetkili Girişi</button>
+            <button id="loginToggleBtn" class="login-btn" onclick="girisKutusunuAc()">Yetkili Girişi</button>
+        </div>
+
+        <div id="loginBox" class="login-box">
+            <h3>Yetkili Girişi</h3>
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="Kullanıcı Adı">
+            </div>
+            <div class="input-group">
+                <input type="password" id="passInput" placeholder="Şifre">
+            </div>
+            <button class="login-btn" onclick="girisYap()">Giriş Yap</button>
         </div>
 
         <div id="adminPanel" class="admin-panel">
-            <h3>Yeni Proje Ekle (Geçici Görünüm)</h3>
+            <h3>Yeni Proje Ekle</h3>
             <div class="input-group">
-                <input type="text" id="pTitle" placeholder="Proje Başlığı (Örn: Custom ROM Derlemesi)">
+                <input type="text" id="pTitle" placeholder="Proje Başlığı">
             </div>
             <div class="input-group">
                 <textarea id="pDesc" rows="3" placeholder="Proje Açıklaması veya Detayları"></textarea>
             </div>
-            <button class="login-btn" onclick="projeEkle()">Ekrana Ekle</button>
+            <button class="login-btn" onclick="projeEkle()">Projeyi Ekle</button>
         </div>
 
         <h2 class="section-title">Projelerim</h2>
         <div id="projectList">
-            
-            <div class="card project-card">
-                <h3>Örnek Proje 1: Özel İşletim Sistemi Modlaması</h3>
-                <p>Eski sistemler için hafifletilmiş Windows yapılandırmaları ve özel ISO hazırlama projem.</p>
-            </div>
+            <p id="noProjectMsg" class="empty-msg">Henüz eklenmiş bir proje bulunmuyor.</p>
+        </div>
 
-            <div class="card project-card">
-                <h3>Örnek Proje 2: Android Recovery ve Kurtarma Kurtarma Araçları</h3>
-                <p>TWRP ve cihaz yazılımları üzerine hazırladığım teknik çalışma ve test dokümanları.</p
+        <h2 class="section-title">İncelemeler ve Değerlendirmeler</h2>
+        
+        <div class="card">
+            <h4 style="margin-top:0;">İnceleme Bırakın</h4>
+            <div class="input-group">
+                <input type="text" id="revName" placeholder="Adınız veya Kullanıcı Adınız">
+            </div>
+            <div class="input-group">
+                <select id="revRating">
+                    <option value="⭐⭐⭐⭐⭐">5 Yıldız - Mükemmel</option>
+                    <option value="⭐⭐⭐⭐">4 Yıldız - Çok İyi</option>
+                    <option value="⭐⭐⭐">3 Yıldız - Orta</option>
+                    <option value="⭐⭐">2 Yıldız - Kötü</option>
+                    <option value="⭐">1 Yıldız - Çok Kötü</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <textarea id="revComment" rows="2" placeholder="İncelemenizi buraya yazın..."></textarea>
+            </div>
+            <button class="login-btn" style="background-color: #0969da;" onclick="incelemeEkle()">İncelemeyi Gönder</button>
+        </div>
+
+        <div id="reviewList">
+            </div>
+    </div>
+
+    <script>
+        // adminoo:admin61 kombinasyonunun SHA-256 Hash hali
+        const AUTH_HASH = "c1c9b33a59858564eec24cd4d6a69fb2306f362ed687bfec26315ef9892cfa76";
+
+        async function hashMetin(metin) {
+            const msgBuffer = new TextEncoder().encode(metin);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function girisKutusunuAc() {
+            const box = document.getElementById('loginBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+
+        async function girisYap() {
+            const user = document.getElementById('userInput').value;
+            const pass = document.getElementById('passInput').value;
+
+            if(!user || !pass) {
+                alert("Lütfen kullanıcı adı ve şifre girin!");
+                return;
+            }
+
+            const girilenHash = await hashMetin(user + ":" + pass);
+
+            if (girilenHash === AUTH_HASH) {
+                alert("Giriş Başarılı!");
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('loginToggleBtn').style.display = 'none';
+            } else {
+                alert("Hatalı Kullanıcı Adı veya Şifre!");
+            }
+        }
+
+        function projeEkle() {
+            const title = document.getElementById('pTitle').value;
+            const desc = document.getElementById('pDesc').value;
+
+            if(!title) return alert("Proje başlığı girin!");
+
+            // "Henüz proje yok" yazısını kaldır
+            const noMsg = document.getElementById('noProjectMsg');
+            if(noMsg) noMsg.remove();
+
+            const div = document.createElement('div');
+            div.className = 'card project-card';
+            div.innerHTML = `<h3 style="margin-top:0; color:#0969da;">${title}</h3><p style="margin-bottom:0;">${desc}</p>`;
+            
+            document.getElementById('projectList').appendChild(div);
+            document.getElementById('pTitle').value = '';
+            document.getElementById('pDesc').value = '';
+        }
+
+        function incelemeEkle() {
+            const name = document.getElementById('revName').value || "Gizli Kullanıcı";
+            const rating = document.getElementById('revRating').value;
+            const comment = document.getElementById('revComment').value;
+
+            if(!comment) return alert("Lütfen bir inceleme yorumu yazın!");
+
+            const div = document.createElement('div');
+            div.className = 'card review-card';
+            div.innerHTML = `<strong>${name}</strong> <span class="rating">${rating}</span><p style="margin-bottom:0;">${comment}</p>`;
+
+            document.getElementById('reviewList').insertBefore(div, document.getElementById('reviewList').firstChild);
+            document.getElementById('revName').value = '';
+            document.getElementById('revComment').value = '';
+        }
+    </script>
+</body>
+</html>
