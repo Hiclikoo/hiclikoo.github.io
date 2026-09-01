@@ -57,16 +57,16 @@
         <div id="projectList">
             <p id="noProjectMsg" class="empty-msg">Henüz eklenmiş bir proje bulunmuyor.</p>
         </div>
-
+</div>
+            <div class="input-group">
+             
         <h2 class="section-title">İncelemeler ve Değerlendirmeler</h2>
         
         <div class="card">
             <h4 style="margin-top:0;">İnceleme Bırakın</h4>
             <div class="input-group">
                 <input type="text" id="revName" placeholder="Adınız veya Kullanıcı Adınız">
-            </div>
-            <div class="input-group">
-                <select id="revRating">
+               <select id="revRating">
                     <option value="⭐⭐⭐⭐⭐">5 Yıldız - Mükemmel</option>
                     <option value="⭐⭐⭐⭐">4 Yıldız - Çok İyi</option>
                     <option value="⭐⭐⭐">3 Yıldız - Orta</option>
@@ -85,76 +85,59 @@
     </div>
 
     <script>
-        // adminoo:admin61 kombinasyonunun SHA-256 Hash hali
-        const AUTH_HASH = "c1c9b33a59858564eec24cd4d6a69fb2306f362ed687bfec26315ef9892cfa76";
+    function girisKutusunuAc() {
+        const box = document.getElementById('loginBox');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
 
-        async function hashMetin(metin) {
-            const msgBuffer = new TextEncoder().encode(metin);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    function girisYap() {
+        const user = document.getElementById('userInput').value.trim();
+        const pass = document.getElementById('passInput').value.trim();
+
+        // Doğrudan kullanıcı adı ve şifre kontrolü
+        if (user === "adminoo" && pass === "admin61") {
+            alert("Giriş Başarılı!");
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('loginToggleBtn').style.display = 'none';
+        } else {
+            alert("Hatalı Kullanıcı Adı veya Şifre!");
         }
+    }
 
-        function girisKutusunuAc() {
-            const box = document.getElementById('loginBox');
-            box.style.display = box.style.display === 'block' ? 'none' : 'block';
-        }
+    function projeEkle() {
+        const title = document.getElementById('pTitle').value;
+        const desc = document.getElementById('pDesc').value;
 
-        async function girisYap() {
-            const user = document.getElementById('userInput').value;
-            const pass = document.getElementById('passInput').value;
+        if(!title) return alert("Proje başlığı girin!");
 
-            if(!user || !pass) {
-                alert("Lütfen kullanıcı adı ve şifre girin!");
-                return;
-            }
+        const noMsg = document.getElementById('noProjectMsg');
+        if(noMsg) noMsg.remove();
 
-            const girilenHash = await hashMetin(user + ":" + pass);
+        const div = document.createElement('div');
+        div.className = 'card project-card';
+        div.innerHTML = `<h3 style="margin-top:0; color:#0969da;">${title}</h3><p style="margin-bottom:0;">${desc}</p>`;
+        
+        document.getElementById('projectList').appendChild(div);
+        document.getElementById('pTitle').value = '';
+        document.getElementById('pDesc').value = '';
+    }
 
-            if (girilenHash === AUTH_HASH) {
-                alert("Giriş Başarılı!");
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('loginToggleBtn').style.display = 'none';
-            } else {
-                alert("Hatalı Kullanıcı Adı veya Şifre!");
-            }
-        }
+    function incelemeEkle() {
+        const name = document.getElementById('revName').value || "Gizli Kullanıcı";
+        const rating = document.getElementById('revRating').value;
+        const comment = document.getElementById('revComment').value;
 
-        function projeEkle() {
-            const title = document.getElementById('pTitle').value;
-            const desc = document.getElementById('pDesc').value;
+        if(!comment) return alert("Lütfen bir inceleme yorumu yazın!");
 
-            if(!title) return alert("Proje başlığı girin!");
+        const div = document.createElement('div');
+        div.className = 'card review-card';
+        div.innerHTML = `<strong>${name}</strong> <span class="rating">${rating}</span><p style="margin-bottom:0;">${comment}</p>`;
 
-            // "Henüz proje yok" yazısını kaldır
-            const noMsg = document.getElementById('noProjectMsg');
-            if(noMsg) noMsg.remove();
-
-            const div = document.createElement('div');
-            div.className = 'card project-card';
-            div.innerHTML = `<h3 style="margin-top:0; color:#0969da;">${title}</h3><p style="margin-bottom:0;">${desc}</p>`;
-            
-            document.getElementById('projectList').appendChild(div);
-            document.getElementById('pTitle').value = '';
-            document.getElementById('pDesc').value = '';
-        }
-
-        function incelemeEkle() {
-            const name = document.getElementById('revName').value || "Gizli Kullanıcı";
-            const rating = document.getElementById('revRating').value;
-            const comment = document.getElementById('revComment').value;
-
-            if(!comment) return alert("Lütfen bir inceleme yorumu yazın!");
-
-            const div = document.createElement('div');
-            div.className = 'card review-card';
-            div.innerHTML = `<strong>${name}</strong> <span class="rating">${rating}</span><p style="margin-bottom:0;">${comment}</p>`;
-
-            document.getElementById('reviewList').insertBefore(div, document.getElementById('reviewList').firstChild);
-            document.getElementById('revName').value = '';
-            document.getElementById('revComment').value = '';
-        }
-    </script>
+        document.getElementById('reviewList').insertBefore(div, document.getElementById('reviewList').firstChild);
+        document.getElementById('revName').value = '';
+        document.getElementById('revComment').value = '';
+    }
+</script>
 </body>
 </html>
