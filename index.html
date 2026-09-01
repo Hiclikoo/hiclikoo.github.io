@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiclikoo - Proje Portfolyosu</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; }
+        .login-btn { background-color: #2da44e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .login-btn:hover { background-color: #2c974b; }
+        .admin-panel { background: #e6f4ea; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: none; border: 1px solid #2da44e; }
+        .input-group { margin-bottom: 15px; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .section-title { margin-top: 30px; border-bottom: 2px solid #ccc; padding-bottom: 8px; color: #24292f; }
+        .card { background: white; padding: 18px; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .project-card { border-left: 5px solid #2da44e; }
+        .review-card { border-left: 5px solid #0969da; }
+        .rating { color: #f39c12; font-weight: bold; }
+        .project-card h3 { margin-top: 0; color: #0969da; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0;">Hiclikoo Portfolyo</h1>
+            <button id="loginBtn" class="login-btn" onclick="girisYap()">Yetkili Girişi</button>
+        </div>
+
+        <div id="adminPanel" class="admin-panel">
+            <h3>Yeni Proje Ekle (Geçici Görünüm)</h3>
+            <div class="input-group">
+                <input type="text" id="pTitle" placeholder="Proje Başlığı (Örn: Custom ROM Derlemesi)">
+            </div>
+            <div class="input-group">
+                <textarea id="pDesc" rows="3" placeholder="Proje Açıklaması veya Detayları"></textarea>
+            </div>
+            <button class="login-btn" onclick="projeEkle()">Ekrana Ekle</button>
+        </div>
+
+        <h2 class="section-title">Projelerim</h2>
+        <div id="projectList">
+            
+            <div class="card project-card">
+                <h3>Örnek Proje 1: Özel İşletim Sistemi Modlaması</h3>
+                <p>Eski sistemler için hafifletilmiş Windows yapılandırmaları ve özel ISO hazırlama projem.</p>
+            </div>
+
+            <div class="card project-card">
+                <h3>Örnek Proje 2: Android Recovery ve Kurtarma Kurtarma Araçları</h3>
+                <p>TWRP ve cihaz yazılımları üzerine hazırladığım teknik çalışma ve test dokümanları.</p
